@@ -76,11 +76,11 @@ let stats = {
 let comboContent = "";
 let proxyContent = "";
 
-document.getElementById('btn-combo').addEventListener('click', () => {
-    document.getElementById('file-combo').click();
+document.getElementById('btn-combo')?.addEventListener('click', () => {
+    document.getElementById('file-combo')?.click();
 });
 
-document.getElementById('file-combo').addEventListener('change', (e) => {
+document.getElementById('file-combo')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if(file) {
         document.getElementById('lbl-combo').innerText = file.name;
@@ -94,11 +94,11 @@ document.getElementById('file-combo').addEventListener('change', (e) => {
     }
 });
 
-document.getElementById('btn-proxy').addEventListener('click', () => {
-    document.getElementById('file-proxy').click();
+document.getElementById('btn-proxy')?.addEventListener('click', () => {
+    document.getElementById('file-proxy')?.click();
 });
 
-document.getElementById('file-proxy').addEventListener('change', (e) => {
+document.getElementById('file-proxy')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if(file) {
         document.getElementById('lbl-proxy').innerText = file.name;
@@ -335,3 +335,5 @@ function setupRealtime() {
 
 // Start realtime connection
 setupRealtime();
+add_log("Sistem Arayuzu (UI) Basariyla Yuklendi ve Hazir.", "success");
+add_log("Eger butonlar calismiyorsa konsoldaki (F12) kirmizi hatayi gelistiriciye bildirin.", "warning");
