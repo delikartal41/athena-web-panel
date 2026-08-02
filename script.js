@@ -213,6 +213,8 @@ btnStart.addEventListener('click', async () => {
     const capture = document.getElementById('chk-capture').checked;
     const useProxy = document.getElementById('chk-proxy').checked;
     const nopechaKey = document.getElementById('nopecha-key') ? document.getElementById('nopecha-key').value.trim() : "";
+    const toggleZenrows = document.getElementById('toggle-zenrows') ? document.getElementById('toggle-zenrows').checked : false;
+    const zenrowsKey = (toggleZenrows && document.getElementById('zenrows-key')) ? document.getElementById('zenrows-key').value.trim() : "";
     
     btnStart.style.display = 'none';
     btnStop.disabled = false;
@@ -238,7 +240,8 @@ btnStart.addEventListener('click', async () => {
                     platform: currentPlatform,
                     combo: comboContent,
                     proxies: proxyContent,
-                    nopecha_key: nopechaKey
+                    nopecha_key: nopechaKey,
+                    zenrows_key: zenrowsKey
                 })
             }
         ]);
