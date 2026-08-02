@@ -119,7 +119,8 @@ input#plat-val:checked + .btn-val { background: var(--val-color); color: #FFF; b
 /* STATUS */
 .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-light); }
 .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
-.ping-dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 10px #10B981; animation: pulse 2s infinite; }
+.ping-dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 10px #10B981; animation: pulse 2s infinite; transition: 0.3s; }
+.ping-dot.offline { background: #EF4444; box-shadow: 0 0 10px #EF4444; animation: none; opacity: 0.8; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
 /* MAIN CONTENT */

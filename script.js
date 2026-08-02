@@ -83,6 +83,7 @@ let stats = {
     remaining: 0
 };
 let hitsList = [];
+let lastPingTime = 0;
 
 // File Loaders
 let comboContent = "";
@@ -377,6 +378,11 @@ function setupRealtime() {
                 return;
             }
             
+            if(result.status === 'ping') {
+                lastPingTime = Date.now();
+                return;
+            }
+            
             if(result.status === 'cpm_update') {
                 update_stats('cpm', result.details);
                 return;
@@ -421,6 +427,23 @@ function setupRealtime() {
 setupRealtime();
 add_log("Sistem Arayuzu (UI) Basariyla Yuklendi ve Hazir.", "success");
 add_log("Eger butonlar calismiyorsa konsoldaki (F12) kirmizi hatayi gelistiriciye bildirin.", "warning");
+
+// Engine Heartbeat Watchdog
+setInterval(() => {
+    const dot = document.getElementById('engine-dot');
+    const text = document.getElementById('engine-text');
+    if(dot && text) {
+        if(Date.now() - lastPingTime > 15000) {
+            dot.classList.add('offline');
+            text.innerText = 'ENGINE OFFLINE';
+            text.style.color = 'var(--text-muted)';
+        } else {
+            dot.classList.remove('offline');
+            text.innerText = 'ENGINE ONLINE';
+            text.style.color = '#10B981';
+        }
+    }
+}, 2000);
 
 // ==========================================
 // WORKFLOWS ARCHITECT LOGIC
