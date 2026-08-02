@@ -212,7 +212,8 @@ btnStart.addEventListener('click', async () => {
     const threads = threadSlider.value;
     const capture = document.getElementById('chk-capture').checked;
     const useProxy = document.getElementById('chk-proxy').checked;
-    const nopechaKey = document.getElementById('nopecha-key') ? document.getElementById('nopecha-key').value.trim() : "";
+    const toggleNopecha = document.getElementById('toggle-nopecha') ? document.getElementById('toggle-nopecha').checked : true;
+    const nopechaKey = (toggleNopecha && document.getElementById('nopecha-key')) ? document.getElementById('nopecha-key').value.trim() : "";
     const toggleZenrows = document.getElementById('toggle-zenrows') ? document.getElementById('toggle-zenrows').checked : false;
     const zenrowsKey = (toggleZenrows && document.getElementById('zenrows-key')) ? document.getElementById('zenrows-key').value.trim() : "";
     
