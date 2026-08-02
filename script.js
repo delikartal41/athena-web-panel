@@ -1,3 +1,14 @@
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    const consoleEl = document.getElementById('log-console');
+    if (consoleEl) {
+        const div = document.createElement('div');
+        div.className = "log error";
+        div.innerText = "JS ERROR: " + msg + " (Line: " + lineNo + ")";
+        consoleEl.appendChild(div);
+    }
+    return false;
+};
+
 // Platform Radio Buttons
 const radios = document.querySelectorAll('input[name="platform"]');
 const root = document.documentElement;
@@ -51,10 +62,10 @@ threadSlider.addEventListener('input', (e) => {
 // Supabase Configuration
 const SUPABASE_URL = 'https://oqwjbosqaryhqkvofcfn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd2pib3NxYXJ5aHFrdm9mY2ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NjU1NTQsImV4cCI6MjEwMTI0MTU1NH0.KC2Ah7SsSOyVqS3RiZloD8qV_2xGRSanStCvYEUnUlM';
-let supabase = null;
+let db = null;
 try {
     if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } else {
         console.error("Supabase CDN yuklenemedi!");
     }
@@ -76,11 +87,17 @@ let stats = {
 let comboContent = "";
 let proxyContent = "";
 
-document.getElementById('btn-combo')?.addEventListener('click', () => {
-    document.getElementById('file-combo')?.click();
-});
+const btnCombo = document.getElementById('btn-combo');
+if (btnCombo) {
+    btnCombo.addEventListener('click', () => {
+        const fileCombo = document.getElementById('file-combo');
+        if (fileCombo) fileCombo.click();
+    });
+}
 
-document.getElementById('file-combo')?.addEventListener('change', (e) => {
+const fileCombo = document.getElementById('file-combo');
+if (fileCombo) {
+    fileCombo.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if(file) {
         document.getElementById('lbl-combo').innerText = file.name;
@@ -92,13 +109,20 @@ document.getElementById('file-combo')?.addEventListener('change', (e) => {
         };
         reader.readAsText(file);
     }
-});
+    });
+}
 
-document.getElementById('btn-proxy')?.addEventListener('click', () => {
-    document.getElementById('file-proxy')?.click();
-});
+const btnProxy = document.getElementById('btn-proxy');
+if (btnProxy) {
+    btnProxy.addEventListener('click', () => {
+        const fp = document.getElementById('file-proxy');
+        if (fp) fp.click();
+    });
+}
 
-document.getElementById('file-proxy')?.addEventListener('change', (e) => {
+const fileProxy = document.getElementById('file-proxy');
+if (fileProxy) {
+    fileProxy.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if(file) {
         document.getElementById('lbl-proxy').innerText = file.name;
@@ -110,14 +134,15 @@ document.getElementById('file-proxy')?.addEventListener('change', (e) => {
         };
         reader.readAsText(file);
     }
-});
+    });
+}
 
 // Actions
 const btnStart = document.getElementById('btn-start');
 const btnStop = document.getElementById('btn-stop');
 
 btnStart.addEventListener('click', async () => {
-    if (!supabase) {
+    if (!db) {
         add_log("Error: Supabase is not loaded! Try disabling AdBlocker.", "error");
         return;
     }
@@ -140,7 +165,7 @@ btnStart.addEventListener('click', async () => {
     
     add_log("Sending scan command to Engine...", "info");
 
-    const { data, error } = await supabase
+    const { data, error } = await db
         .from('tasks')
         .insert([
             { 
@@ -167,11 +192,11 @@ btnStart.addEventListener('click', async () => {
 });
 
 btnStop.addEventListener('click', async () => {
-    if (!supabase) return;
+    if (!db) return;
     btnStart.style.display = 'flex';
     btnStop.disabled = true;
     
-    await supabase
+    await db
         .from('tasks')
         .insert([
             { command: 'stop_scan', status: 'pending' }
@@ -278,13 +303,13 @@ function add_log(msg, level="info") {
 
 // Setup Realtime Listener
 function setupRealtime() {
-    if (!supabase) {
+    if (!db) {
         add_log("Supabase baglantisi kurulamadi! Lutfen eklentileri (Adblock) kapatin ve sayfayi yenileyin.", "error");
         return;
     }
     add_log("Connecting to Supabase Realtime...", "info");
     
-    supabase
+    db
         .channel('public:results')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'results' }, payload => {
             const result = payload.new;
