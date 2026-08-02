@@ -212,6 +212,7 @@ btnStart.addEventListener('click', async () => {
     const threads = threadSlider.value;
     const capture = document.getElementById('chk-capture').checked;
     const useProxy = document.getElementById('chk-proxy').checked;
+    const nopechaKey = document.getElementById('nopecha-key') ? document.getElementById('nopecha-key').value.trim() : "";
     
     btnStart.style.display = 'none';
     btnStop.disabled = false;
@@ -236,7 +237,8 @@ btnStart.addEventListener('click', async () => {
                     proxy: useProxy, 
                     platform: currentPlatform,
                     combo: comboContent,
-                    proxies: proxyContent
+                    proxies: proxyContent,
+                    nopecha_key: nopechaKey
                 })
             }
         ]);
