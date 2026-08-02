@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Athena Checker - 100x Edition</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     
@@ -96,7 +97,7 @@
                         <div class="metric-value" id="val-total">0</div>
                         <div class="metric-chart"><div class="chart-line"></div></div>
                     </div>
-                    <div class="metric-card" style="--mc: #10B981;">
+                    <div class="metric-card hit-card-interactive" style="--mc: #10B981;" id="card-valid-hits">
                         <div class="metric-header">Valid Hits</div>
                         <div class="metric-value text-green" id="val-hits">0</div>
                         <div class="metric-glow"></div>
@@ -157,6 +158,11 @@
 
                         <div class="switches">
                             <label class="toggle-switch">
+                                <span>NOPECHA</span>
+                                <input type="checkbox" id="toggle-nopecha" checked>
+                                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                            </label>
+                            <label class="toggle-switch">
                                 <span>Full Capture</span>
                                 <input type="checkbox" id="chk-capture" checked>
                                 <div class="toggle-track"><div class="toggle-thumb"></div></div>
@@ -185,18 +191,152 @@
             </section>
 
             <section id="workflows" class="view hidden">
-                <div class="empty-state">
-                    <div class="es-icon">♾️</div>
-                    <h2>Workflows Architect</h2>
-                    <p>Build visual checking pipelines with drag & drop nodes. (Coming Soon)</p>
+                <div class="modules-grid" style="grid-template-columns: 2fr 1fr; height: calc(100vh - 120px); margin: 0;">
+                    <!-- LEFT COLUMN: PIPELINE -->
+                    <div class="module workflow-module" style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="module-header" style="background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 25px 30px; flex-shrink: 0;">
+                            <span class="icon" style="text-shadow: 0 0 15px rgba(59,130,246,0.6); font-size: 20px;">⚡</span>
+                            <h2 style="font-size: 18px; letter-spacing: 2px;">WORKFLOW PIPELINE</h2>
+                        </div>
+                        <div class="module-body" style="position: relative; overflow-y: auto; overflow-x: hidden; padding: 40px; flex: 1; height: 100%;">
+                            <div class="workflow-timeline">
+                                <div class="timeline-line"></div>
+                                
+                                <!-- Step 1: Base Check (Unremovable) -->
+                                <div class="wf-step core-step">
+                                    <div class="wf-icon" style="background: #3B82F6; box-shadow: 0 0 15px rgba(59,130,246,0.5);">🛡️</div>
+                                    <div class="wf-content">
+                                        <h4>Account Authentication <span style="font-size: 10px; background: rgba(59,130,246,0.2); color: #3B82F6; padding: 3px 8px; border-radius: 4px;">CORE</span></h4>
+                                        <p>Base module. Validates username and password against the selected platform.</p>
+                                    </div>
+                                </div>
+                                
+                                <div id="wf-dynamic-steps">
+                                    <!-- Dynamic steps will be injected here -->
+                                </div>
+
+                                <!-- Add Step Button -->
+                                <div class="wf-add-container">
+                                    <button class="wf-add-btn" id="btn-add-step">
+                                        <span class="plus-icon">+</span> ADD NEW NODE
+                                    </button>
+                                    
+                                    <!-- Dropdown for selecting steps -->
+                                    <div class="wf-dropdown hidden" id="wf-step-dropdown">
+                                        <div class="wf-drop-item" data-type="webhook">
+                                            <span class="icon" style="color: #5865F2;">👾</span>
+                                            <div>
+                                                <h5>Discord Webhook</h5>
+                                                <p>Send valid hits directly to your server.</p>
+                                            </div>
+                                        </div>
+                                        <div class="wf-drop-item" data-type="inventory">
+                                            <span class="icon" style="color: #F59E0B;">🎒</span>
+                                            <div>
+                                                <h5>Capture Inventory</h5>
+                                                <p>Extract skins, VP, RP and levels.</p>
+                                            </div>
+                                        </div>
+                                        <div class="wf-drop-item" data-type="filter">
+                                            <span class="icon" style="color: #EC4899;">🎯</span>
+                                            <div>
+                                                <h5>Premium Filter</h5>
+                                                <p>Discard accounts without specific items.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: NODE CONFIGURATION -->
+                    <div class="module config-module">
+                        <div class="module-header" style="background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 25px 30px;">
+                            <span class="icon" style="text-shadow: 0 0 15px rgba(245,158,11,0.6); font-size: 20px;">⚙️</span>
+                            <h2 style="font-size: 18px; letter-spacing: 2px;">NODE CONFIGURATION</h2>
+                        </div>
+                        <div class="module-body" style="padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); opacity: 0.5;">
+                            <div style="font-size: 40px; margin-bottom: 15px;">🖱️</div>
+                            <h3>No Node Selected</h3>
+                            <p style="font-size: 12px; margin-top: 5px;">Select a node from the pipeline to configure its parameters.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
             
             <section id="analytics" class="view hidden">
-                <div class="empty-state">
-                    <div class="es-icon">📊</div>
-                    <h2>Deep Analytics</h2>
-                    <p>Advanced metrics and historical graphs. (Coming Soon)</p>
+                <div class="analytics-container" style="padding: 30px; height: calc(100vh - 120px); overflow-y: auto;">
+                    <div class="module-header" style="margin-bottom: 25px;">
+                        <span class="icon" style="text-shadow: 0 0 15px rgba(245,158,11,0.6); font-size: 20px;">📊</span>
+                        <h2 style="font-size: 24px; letter-spacing: 2px;">DEEP ANALYTICS</h2>
+                    </div>
+
+                    <!-- TOP STATS ROW -->
+                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 30px;">
+                        <div class="module stat-card" style="padding: 20px;">
+                            <div class="stat-title" style="color: var(--text-muted); font-size: 11px; font-weight: bold; margin-bottom: 5px;">TOTAL CHECKED</div>
+                            <div class="stat-value" id="stat-total" style="font-size: 32px; font-weight: 900; color: #FFF;">0</div>
+                            <div class="stat-sub" style="font-size: 10px; color: var(--text-muted);">From combo</div>
+                        </div>
+                        <div class="module stat-card" style="padding: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div class="stat-title" style="color: #10B981; font-size: 11px; font-weight: bold; margin-bottom: 5px;">VALID HITS</div>
+                            <div class="stat-value" id="stat-valid" style="font-size: 32px; font-weight: 900; color: #10B981; text-shadow: 0 0 15px rgba(16,185,129,0.5);">0</div>
+                            <div class="stat-sub" style="font-size: 10px; color: var(--text-muted);">Success</div>
+                        </div>
+                        <div class="module stat-card" style="padding: 20px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div class="stat-title" style="color: #EF4444; font-size: 11px; font-weight: bold; margin-bottom: 5px;">LOCKED / BANNED</div>
+                            <div class="stat-value" id="stat-locked" style="font-size: 32px; font-weight: 900; color: #EF4444;">0</div>
+                            <div class="stat-sub" style="font-size: 10px; color: var(--text-muted);">Attention</div>
+                        </div>
+                        <div class="module stat-card" style="padding: 20px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                            <div class="stat-title" style="color: #3B82F6; font-size: 11px; font-weight: bold; margin-bottom: 5px;">CPM (SPEED)</div>
+                            <div class="stat-value" id="stat-cpm" style="font-size: 32px; font-weight: 900; color: #3B82F6;">0</div>
+                            <div class="stat-sub" style="font-size: 10px; color: var(--text-muted);">Checks/Min</div>
+                        </div>
+                        <div class="module stat-card" style="padding: 20px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                            <div class="stat-title" style="color: #F59E0B; font-size: 11px; font-weight: bold; margin-bottom: 5px;">RETRIES</div>
+                            <div class="stat-value" id="stat-retries" style="font-size: 32px; font-weight: 900; color: #F59E0B;">0</div>
+                            <div class="stat-sub" style="font-size: 10px; color: var(--text-muted);">Proxy Drops</div>
+                        </div>
+                    </div>
+
+                    <!-- CHARTS ROW -->
+                    <div class="charts-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px;">
+                        <div class="chart-container module" style="padding: 25px; display: flex; flex-direction: column; min-height: 250px;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; color: var(--text-muted); letter-spacing: 1px; flex-shrink: 0;">LIVE PERFORMANCE (CPM & HITS)</h3>
+                            <div style="position: relative; flex: 1; min-height: 0;">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container module" style="padding: 25px; display: flex; flex-direction: column; min-height: 250px;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; color: var(--text-muted); letter-spacing: 1px; flex-shrink: 0;">PLATFORM DISTRIBUTION</h3>
+                            <div style="position: relative; flex: 1; min-height: 0;">
+                                <canvas id="platformChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM ROW -->
+                    <div class="bottom-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="module" style="padding: 25px;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; color: var(--text-muted); letter-spacing: 1px;">RECENT HITS FEED</h3>
+                            <div id="recent-hits-feed" style="height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Empty state -->
+                                <div style="text-align: center; color: var(--text-muted); margin-top: 50px; opacity: 0.5;">
+                                    <div style="font-size: 24px; margin-bottom: 10px;">💤</div>
+                                    Waiting for engine to start...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="module" style="padding: 25px;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; color: var(--text-muted); letter-spacing: 1px;">PROXY HEALTH</h3>
+                            <div style="display: flex; align-items: center; justify-content: center; height: 200px; flex-direction: column;">
+                                <div style="font-size: 64px; font-weight: 900; color: #10B981; text-shadow: 0 0 20px rgba(16,185,129,0.4);">0%</div>
+                                <div style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Average Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -207,6 +347,27 @@
     <div id="particle-container"></div>
     <div id="streak-container"></div>
 
-    <script src="script.js?v=3"></script>
+    <!-- HITS MODAL -->
+    <div id="hits-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Captured Accounts</h3>
+                <button id="btn-close-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="hits-list-container" class="hits-list">
+                    <!-- Hits will appear here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-download-hits" class="master-btn btn-start" style="width: 100%; border-radius: 12px; height: 50px;">
+                    <span class="btn-text" style="color: #000; font-weight: 800;">DOWNLOAD HITS</span>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=4"></script>
 </body>
 </html>
